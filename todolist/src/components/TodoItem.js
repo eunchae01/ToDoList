@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, {css} from 'styled-components';
 import {MdDone, MdDelete} from 'react-icons/md';
+import { useTodoDispatch } from '../TodoContext';
 
 // 왼쪽에 있는 체크를 보여주는 컴포넌트
 const CheckCircle = styled.div`
@@ -16,8 +17,8 @@ const CheckCircle = styled.div`
     cursor: pointer;
 
     ${props => props.done && css`
-        border: 1px solid #38d9a9;
-        color: #38d9a9;
+        border: 1px solid #91a7ff;
+        color: #91a7ff;
     `}
 `;
 
@@ -61,15 +62,28 @@ const TodoItemBlock = styled.div`
 `;
 
 function TodoItem({id, done, text}){
+    const dispatch = useTodoDispatch();
+    const onToggle = () => dispatch({
+        type: 'TOGGLE',
+        id
+    });
+
+    const onRemove = () => dispatch({
+        type: 'REMOVE',
+        id
+    });
+
     return(
         <TodoItemBlock>
-            <CheckCircle done={done}>{done && <MdDone/>}</CheckCircle>
+            <CheckCircle done={done} onClick={onToggle}>
+                {done && <MdDone/>}
+            </CheckCircle>
             <Text done={done}>{text}</Text>
-            <Remove>
+            <Remove onClick={onRemove}>
                 <MdDelete/>
             </Remove>
         </TodoItemBlock>
     );
 }
 
-export default TodoItem;
+export default React.memo(TodoItem);

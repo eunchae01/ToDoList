@@ -2,16 +2,17 @@ import React, {useState} from 'react';
 import styled, {css} from 'styled-components';
 //더하기모양 아이콘
 import {MdAdd} from 'react-icons/md';   
+import { useTodoDispatch, useTodoNextId } from '../TodoContext';
 
 const CircleButton = styled.button`
-    background: #38d9a9;
+    background: #91a7ff;
 
     &:hover{
-        background: #63e6be;
+        background: #4c6ef5;
     }
 
     &:active{
-        background: #20c997;
+        background: #91a7ff;
     }
 
     z-index: 5; //다른 것 가려야하기 때문
@@ -62,7 +63,7 @@ const InsertFormPositioner = styled.div`
     position: absolute;
 `;
 
-const InsertForm = styled.div`
+const InsertForm = styled.form`
     background: #f8f9fa;
     padding: 32px;
     padding-bottom: 72px;
@@ -84,14 +85,42 @@ const Input = styled.input`
 
 function TodoCreate(){
     const [open, setOpen] = useState(false);
+    const [value, setValue] = useState('');
+    
+    const dispatch = useTodoDispatch();
+    const nextId = useTodoNextId();
+
     const onToggle = () => setOpen(!open);
+    const onChange = (e) => setValue(e.target.value);
+    const onSubmit = e => {
+        //새로고침 안하게 하는 함수(상태 날라가는것을 방지)
+        e.preventDefault();
+
+        dispatch({
+            type: 'CREATE',
+            todo: {
+                id: nextId.current,
+                text: value,
+                done: false,
+            }
+        });
+
+        setValue('');
+        setOpen(false);
+        nextId.current += 1;
+    };
 
     return(
         <>
         {open && (
             <InsertFormPositioner>
-                <InsertForm>
-                    <Input placeholder='할 일을 입력 후, Enter를 눌러주세요' autoFocus/>
+                <InsertForm onSubmit={onSubmit}>
+                    <Input 
+                        placeholder='할 일을 입력 후, Enter를 눌러주세요' 
+                        autoFocus
+                        onChange={onChange}
+                        value={value} 
+                    />
                 </InsertForm>
             </InsertFormPositioner>
         )}
@@ -102,4 +131,5 @@ function TodoCreate(){
     );
 }
 
-export default TodoCreate;
+//리엑트.메모해주고 괄호로 감싸주면 최적화,,
+export default React.memo(TodoCreate);
